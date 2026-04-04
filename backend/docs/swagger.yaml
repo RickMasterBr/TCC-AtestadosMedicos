@@ -1,0 +1,136 @@
+openapi: 3.0.0
+
+info:
+  description: Sistema de gestão de atestados médicos para empresas
+  version: "1.0.0"
+  title: API de Atestados
+  
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/petrobras-26b/rotas/1.0.0
+  - url: http://localhost:3000
+
+tags:
+  - name: Auth
+    description: Autenticação de usuários
+
+  - name: Usuários
+    description: Operações com usuários
+
+  - name: Atestados
+    description: Gestão de atestados médicos
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login do usuário
+      requestBody: 
+        required: true
+        content: 
+          application/json: 
+            example:
+              email: usuario@email.com
+              password: 123456
+      responses: 
+        "200":
+          description: Login realizado com sucesso (retorna token)
+
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Registro do usuário
+      requestBody: 
+        required: true
+        content: 
+          application/json: 
+            example:
+              name: Fulano da Silva
+              email: usuario@email.com
+              password: 123456
+              role: funcionario
+      responses: 
+        "201":
+          description: Usuário cadastrado com sucesso
+
+  /certificates:
+    post:
+      tags:
+        - Atestados
+      summary: Envio de atestado com arquivo
+      requestBody: 
+        required: true
+        content: 
+          multipart/form-data: 
+            schema: 
+              type: object
+              properties: 
+                arquivo:
+                  type: string
+                  format: binary
+                data:
+                  type: string
+                  format: date
+                diasAfastado:
+                  type: integer
+      responses: 
+        "201":
+          description: Atestado enviado com sucesso
+    get: 
+      tags: 
+        - Atestados
+      summary: Lista os atestados do usuário logado
+      responses: 
+        "200":
+          description: Lista retornada com sucesso
+
+  /admin/certificates:
+    get: 
+      tags: 
+        - Atestados
+      summary: Lista todos os atestados (admin)
+      parameters: 
+        - in: query
+          name: status
+          schema: 
+            type: string
+        - in: query
+          name: name
+          schema: 
+            type: string
+      responses: 
+        "200":
+          description: Lista de atestados com filtros
+
+  /admin/certificates/{id}/approve:
+    patch: 
+      tags: 
+        - Atestados
+      summary: Aprovar um certificado
+      parameters: 
+        - in: path
+          name: id
+          required: true
+          schema: 
+            type: integer
+      responses: 
+        "200":
+          description: Certificado aprovado
+
+  /admin/certificates/{id}/reject:
+    patch:
+      tags:
+        - Atestados
+      summary: Rejeitar um certificado
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Certificado rejeitado

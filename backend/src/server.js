@@ -1,10 +1,16 @@
 const express = require('express')
 const cors = require('cors')
+const swaggerUi = require('swagger-ui-express')
+const YAML = require('yamljs')
 
 const app = express()
 
 app.use(cors())
 app.use(express.json())
+
+const swaggerDocument = YAML.load('../docs/swagger.yaml')
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'API de Atestados Médicos rodando.' })
