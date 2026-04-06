@@ -4,6 +4,13 @@ info:
   description: Sistema de gestão de atestados médicos para empresas
   version: "1.0.0"
   title: API de Atestados
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   
 servers:
   # Added by API Auto Mocking Plugin
@@ -55,7 +62,41 @@ paths:
       responses: 
         "201":
           description: Usuário cadastrado com sucesso
-
+  
+  /users/me:
+    get:
+      tags:
+        - Usuários
+      summary: Retorna perfil atual
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Informação do usuário retornada com sucesso
+    put:
+      tags:
+        - Usuários
+      summary: Alterar perfil atual
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            example:
+              name: Fulano atualizado
+              email: novo@email.com
+      responses:
+        "200":
+          description: Usuário atualizado com sucesso
+    delete:
+      tags:
+        - Usuários
+      summary: Deletar perfil atual
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Usuário deletado com sucesso
   /certificates:
     post:
       tags:
