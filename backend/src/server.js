@@ -1,30 +1,40 @@
-const express = require('express')
-const cors = require('cors')
-const swaggerUi = require('swagger-ui-express')
-const YAML = require('yamljs')
+const express = require('express');
+const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const path = require('path');
 
-const app = express()
+const app = express();
 
-app.use(cors())
-app.use(express.json())
+app.use(cors());
+app.use(express.json());
 
-const swaggerDocument = YAML.load('../docs/swagger.yaml')
-const authRoutes = require('./modules/auth/routes')
-const adminRoutes = require('./modules/admin/routes')
-const certificatesRoutes = require('./modules/certificates/certificates.routes')
+// Corrige caminho do Swagger (mais seguro)
+const swaggerDocument = YAML.load(path.join(__dirname, '../docs/swagger.yaml'));
 
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+// Importação das rotas
+const authRoutes = require('./modules/auth/routes');
+const adminRoutes = require('./modules/admin/routes');
+const certificatesRoutes = require('./modules/certificates/certificates.routes');
 
-app.use('/auth', authRoutes)
-app.use('/admin', adminRoutes)
-app.use('/certificates', certificatesRoutes)
+// Swagger
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// ROTAS PRINCIPAIS
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
+app.use('/certificates', certificatesRoutes);
+
+// 🔥 SERVIR ARQUIVOS (ESSENCIAL PARA O DIA 3)
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'API de Atestados Médicos rodando.' })
-})
+  res.json({ status: 'ok', message: 'API de Atestados Médicos rodando.' });
+});
 
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`)
-})
+  console.log(`Servidor rodando na porta ${PORT}`);
+});

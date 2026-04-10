@@ -16,6 +16,8 @@ servers:
   # Added by API Auto Mocking Plugin
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/petrobras-26b/rotas/1.0.0
+  - url: https://cautious-doodle-59xv6q6vjw92797w-3001.app.github.dev
+  - url: http://localhost:3001
   - url: http://localhost:3000
 
 tags:

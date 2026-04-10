@@ -1,14 +1,24 @@
-const multer = require ('multer');
-const path = require ('path');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Caminho absoluto da pasta uploads
+const uploadPath = path.join(__dirname, '../../../uploads');
+
+// Garante que a pasta existe (cria automaticamente se não existir)
+if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true });
+}
 
 // Configuração de onde e como os arquivos serão salvos
 const storage = multer.diskStorage({
-    //Define a pasta de destino
+    
+    // Define a pasta de destino
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        cb(null, uploadPath);
     },
 
-    //Define o nome do arquivo (evita sobrescrever)
+    // Define o nome do arquivo (evita sobrescrever)
     filename: (req, file, cb) => {
         const uniqueName = Date.now() + path.extname(file.originalname);
         cb(null, uniqueName);
@@ -23,19 +33,19 @@ const fileFilter = (req, file, cb) => {
         'image/png'
     ];
 
-    if(allowedTypes.includes(file.mimetype)) {
-        cb(null, true); // Arquivo aceito.
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
     } else {
-        cb(new Error('Tipo de arquivo inválido')); // Arquivo inválido
+        cb(new Error('Tipo de arquivo inválido'));
     }
 };
 
 // Configuração final do multer
-const upload = multer ({
-    storage, // Onde salva
-    fileFilter, // valida o tipo
+const upload = multer({
+    storage,
+    fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024 // limite de 5mb
+        fileSize: 5 * 1024 * 1024 // limite de 5MB
     }
 });
 
