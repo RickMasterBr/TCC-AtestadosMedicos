@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import NavBar from "@/components/NavBar";
+import api from '@/services/api';
 // Assumindo que você tenha o axios ou fetch configurado aqui para lidar com o JWT:
 // import api from "@/services/api"; 
 
@@ -16,19 +17,15 @@ export default function Dashboard() {
     async function fetchMeusAtestados() {
       try {
         setIsLoading(true);
-        
+
         /* EXEMPLO DE INTEGRAÇÃO REAL COM O BACKEND (Módulo Dev 4):
           const response = await api.get('/certificates/me'); // O api.js já deve injetar o token JWT
           setAtestados(response.data);
         */
 
-        // Simulando a chamada para o backend (Remover quando a API estiver pronta)
-        setTimeout(() => {
-          // Troque para uma array com dados para ver a lista preenchida
-          const dadosSimulados = []; 
-          setAtestados(dadosSimulados);
-          setIsLoading(false);
-        }, 1000);
+        const response = await api.get('/certificates');
+        setAtestados(response.data);
+        setIsLoading(false);
 
       } catch (err) {
         console.error("Erro ao buscar atestados:", err);
@@ -49,13 +46,13 @@ export default function Dashboard() {
       <NavBar />
 
       <main className="w-full flex-1 px-8 py-10 flex flex-col gap-6">
-        
+
         {/* --- CARD 1: Resumo Dinâmico --- */}
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
           <h1 className="text-3xl font-normal text-gray-900">Olá, Usuário.</h1>
           <p className="text-sm text-gray-500 mt-2 mb-6">Aqui está um resumo dos seus atestados.</p>
           <hr className="border-gray-200 mb-6" />
-          
+
           <div className="flex gap-12">
             <div className="flex flex-col">
               <span className="text-gray-900 font-medium text-lg">
@@ -77,7 +74,7 @@ export default function Dashboard() {
           <h2 className="text-2xl font-normal text-gray-900">Recentes</h2>
           <p className="text-sm text-gray-500 mt-1 mb-6">Seus atestados mais recentes</p>
           <hr className="border-gray-200 mb-6" />
-          
+
           {/* TRATAMENTO DE ESTADOS: Loading, Erro, Vazio e Preenchido */}
           {isLoading ? (
             <div className="text-center py-4 text-sm text-gray-500">

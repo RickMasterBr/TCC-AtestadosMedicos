@@ -4,12 +4,16 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import NavBar from '@/components/NavBar'; // <-- Importando o NavBar
+import api from '@/services/api';
+// Se você estiver usando a instância do axios configurada no seu repositório:
+// import api from '@/services/api'; 
 
 export default function EnviarAtestado() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState(null);
-  
+
+  // Estado para os campos de texto e data
   const [formData, setFormData] = useState({
     dataInicio: '',
     dataTermino: '',
@@ -32,7 +36,7 @@ export default function EnviarAtestado() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!file) {
       alert("Por favor, anexe o arquivo do atestado.");
       return;
@@ -42,29 +46,28 @@ export default function EnviarAtestado() {
 
     try {
       const data = new FormData();
-      data.append('dataInicio', formData.dataInicio);
-      data.append('dataTermino', formData.dataTermino);
-      data.append('motivo', formData.motivo);
-      data.append('nomeMedico', formData.nomeMedico);
-      data.append('crm', formData.crm);
-      data.append('observacoes', formData.observacoes);
-      data.append('arquivo', file);
+        data.append('file', file);
+        data.append('startDate', formData.dataInicio);
+        data.append('crmNumber', formData.crm);
+        data.append('motivo', formData.motivo);
+        data.append('nomeMedico', formData.nomeMedico);
+        data.append('observacoes', formData.observacoes);
 
-      const response = await fetch('http://localhost:3000/api/certificates', {
-        method: 'POST',
-        body: data,
+      const inicio = new Date(formData.dataInicio);
+      const termino = new Date(formData.dataTermino);
+      const dias = Math.ceil((termino - inicio) / (1000 * 60 * 60 * 24));
+      data.append('durationDays', dias);
+
+      await api.post('/certificates', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
-
-      if (!response.ok) {
-        throw new Error('Falha ao enviar o atestado');
-      }
 
       alert('Atestado enviado com sucesso!');
       router.push('/funcionario/meus-atestados'); 
 
     } catch (error) {
       console.error("Erro no envio:", error);
-      alert('Ocorreu um erro ao conectar com o servidor. Tente novamente.');
+      alert('Ocorreu um erro ao enviar. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +84,7 @@ export default function EnviarAtestado() {
         <Link href="/funcionario/dashboard" className="text-sm text-gray-500 hover:underline mb-6 inline-block">
           &larr; Voltar
         </Link>
-        
+
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Enviar atestado</h1>
         <p className="text-sm text-gray-500 mb-8">Preencha os dados do documento médico e anexe o arquivo.</p>
 
@@ -89,31 +92,31 @@ export default function EnviarAtestado() {
           <div className="flex flex-col md:flex-row gap-5">
             <div className="flex-1 flex flex-col">
               <label className="text-[13px] font-medium text-gray-700 mb-2">Data de início<span className="text-red-500">*</span></label>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 name="dataInicio"
                 value={formData.dataInicio}
                 onChange={handleInputChange}
                 className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition"
-                required 
+                required
               />
             </div>
             <div className="flex-1 flex flex-col">
               <label className="text-[13px] font-medium text-gray-700 mb-2">Data de término<span className="text-red-500">*</span></label>
-              <input 
-                type="date" 
+              <input
+                type="date"
                 name="dataTermino"
                 value={formData.dataTermino}
                 onChange={handleInputChange}
                 className="w-full p-3 border border-gray-300 rounded-md text-sm outline-none focus:border-[#00a8ac] focus:ring-1 focus:ring-[#00a8ac] transition"
-                required 
+                required
               />
             </div>
           </div>
 
           <div className="flex flex-col">
             <label className="text-[13px] font-medium text-gray-700 mb-2">Motivo<span className="text-red-500">*</span></label>
-            <select 
+            <select
               name="motivo"
               value={formData.motivo}
               onChange={handleInputChange}
@@ -130,8 +133,8 @@ export default function EnviarAtestado() {
           <div className="flex flex-col md:flex-row gap-5">
             <div className="flex-1 flex flex-col">
               <label className="text-[13px] font-medium text-gray-700 mb-2">Nome do médico</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="nomeMedico"
                 value={formData.nomeMedico}
                 onChange={handleInputChange}
@@ -141,8 +144,8 @@ export default function EnviarAtestado() {
             </div>
             <div className="flex-1 flex flex-col">
               <label className="text-[13px] font-medium text-gray-700 mb-2">CRM</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 name="crm"
                 value={formData.crm}
                 onChange={handleInputChange}
@@ -154,7 +157,7 @@ export default function EnviarAtestado() {
 
           <div className="flex flex-col">
             <label className="text-[13px] font-medium text-gray-700 mb-2">Observações</label>
-            <textarea 
+            <textarea
               name="observacoes"
               value={formData.observacoes}
               onChange={handleInputChange}
@@ -167,21 +170,22 @@ export default function EnviarAtestado() {
             <label className="text-[13px] font-medium text-gray-700 mb-2">Arquivo do atestado<span className="text-red-500">*</span></label>
             <div className="relative flex items-center border border-gray-300 rounded-md p-3 bg-white focus-within:border-[#00a8ac] focus-within:ring-1 focus-within:ring-[#00a8ac] transition">
               <span className="flex items-center gap-2 text-sm text-gray-500 pointer-events-none">
-                <span className="transform -rotate-45">📎</span> 
+                <span className="transform -rotate-45">📎</span>
                 {file ? file.name : "Anexar PDF, JPG ou PNG"}
               </span>
-              <input 
-                type="file" 
-                accept=".pdf,.jpg,.jpeg,.png" 
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
                 onChange={handleFileChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                required 
+                required
               />
             </div>
           </div>
 
-          <button 
-            type="submit" 
+          {/* Botão Enviar */}
+          <button
+            type="submit"
             disabled={isLoading}
             className="w-full mt-4 py-3 bg-[#00a8ac] text-white rounded-md text-[15px] font-semibold hover:bg-[#008f92] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
           >

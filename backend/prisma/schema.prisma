@@ -1,0 +1,81 @@
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(uuid())
+  name String 
+  email String @unique
+  passwordHash String
+  role Role @default(EMPLOYEE)
+  createdAt DateTime @default(now())
+
+  certificates MedicalCertificate[] @relation("UserCertificates")
+  reviewedByMe MedicalCertificate[] @relation("ReviewedBy")
+  auditLogs AuditLog[]
+  consentAgreements ConsentAgreement[]
+
+}
+
+enum Role {
+  EMPLOYEE
+  ADMIN
+}
+
+model MedicalCertificate {
+  id String @id @default(uuid())
+  startDate DateTime
+  endDate DateTime
+  status CertificateStatus @default(PENDING)
+  fileUrl String?
+  crmNumber String
+  createdAt DateTime @default(now())
+
+  userId String
+  user User @relation("UserCertificates", fields: [userId], references: [id])
+
+  reviewedById String?
+  reviewedBy User? @relation("ReviewedBy", fields: [reviewedById], references: [id])
+
+  auditLogs AuditLog[]
+}
+
+enum CertificateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+  action String
+  previousState String?
+  newState String?
+  adminNotes String?
+  ipAddress String?
+  timestamp DateTime @default(now())
+
+  certificatedId String
+  certificate MedicalCertificate @relation(fields: [certificatedId], references: [id])
+
+  actorId String
+  actor User @relation(fields: [actorId], references: [id])
+}
+
+model ConsentAgreement {
+  id String @id @default(uuid())
+  consentVersion String
+  acceptedAt DateTime @default(now())
+  ipAdress String?
+  deviceFingerprint String?
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
+}
