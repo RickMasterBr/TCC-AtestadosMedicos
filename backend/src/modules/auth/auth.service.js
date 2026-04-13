@@ -1,13 +1,11 @@
 // Essa parte é responsável somente pela lógica
 
 /*
-
 No caso do auth.service.js, o que ele faz especificamente é:
 Recebe name, email, password e role como parâmetros simples — sem saber que veio de uma requisição HTTP.
 Pega a senha em texto puro e transforma em um hash com bcrypt. O hash é uma string embaralhada irreversível — você nunca consegue "desembaralhar" de volta para a senha original, só consegue comparar.
 Depois salva o usuário no banco com o hash no lugar da senha.
 Devolve o usuário criado para quem chamou a função — que vai ser o controller.
-
 */
 
 const bcryptjs = require('bcryptjs');
@@ -68,10 +66,63 @@ async function loginUser(email, password) {
     return { token, role: user.role };
 }
 
-module.exports = { createUser, loginUser };
+// ==========================================
+// TAREFA DIA 3: Registro de Consentimento
+// ==========================================
+async function gravarConsentimento(dados) {
+    // Aqui nós usamos o Prisma para gravar na tabela ConsentAgreement.
+    // ATENÇÃO: Os nomes dos campos (userId, atestadoId, etc.) devem ser 
+    // EXATAMENTE os mesmos que estão definidos no seu arquivo schema.prisma!
+    // Se no seu schema estiver "usuario_id", troque "userId" para "usuario_id" abaixo.
+    
+    const consentimento = await prisma.consentAgreement.create({
+        data: {
+            userId: dados.idUsuario,
+            atestadoId: dados.idAtestado,
+            ipAddress: dados.ipRequisicao,
+            termVersion: dados.versaoTermo,
+            acceptedAt: dados.timestamp
+        }
+    });
+
+    return consentimento;
+}
+
+// ==========================================
+// TAREFA DIA 4: Recuperação de Senha Simples
+// ==========================================
+async function atualizarSenhaSimples(email, novaSenha) {
+    // 1. Primeiro, verificamos se o usuário com esse email realmente existe
+    const user = await prisma.user.findUnique({
+        where: { email }
+    });
+
+    // Se não existir, jogamos o erro de volta para o Controller tratar
+    if (!user) {
+        throw new Error('Usuário não encontrado');
+    }
+
+    // 2. Assim como na criação de usuário, NUNCA salvamos a senha nova em texto puro
+    // Precisamos gerar o hash da nova senha antes de atualizar
+    const passwordHash = await bcryptjs.hash(novaSenha, 10);
+
+    // 3. Atualizamos o registro do usuário no banco de dados com o novo hash
+    await prisma.user.update({
+        where: { email },
+        data: { passwordHash }
+    });
+
+    return true; // Retorna sucesso
+}
+
+module.exports = { 
+    createUser, 
+    loginUser, 
+    gravarConsentimento, 
+    atualizarSenhaSimples 
+};
+
 /*
-
-
 Pense no módulo de Auth como uma agência bancaria. Ela tem funcionarios com
 funções diferentes.
 
@@ -84,6 +135,4 @@ valida se os campos estiverem certos e chama os bastidores (service) para fazer 
 e depois devolve a resposta ao cliente.
 
 o Routes é a porta de entrada da agência, ele define qual caminho leva para qual atendente.
-
-
 */

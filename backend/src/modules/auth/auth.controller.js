@@ -1,4 +1,9 @@
-const { createUser, loginUser } = require('./auth.service');
+const { 
+    createUser, 
+    loginUser, 
+    gravarConsentimento, 
+    atualizarSenhaSimples 
+} = require('./auth.service');
 
 async function register(req, res) {
     try {
@@ -68,4 +73,75 @@ async function login(req, res) {
     }
 }
 
-module.exports = { register, login };
+// ==========================================
+// TAREFA DIA 3: Registro de Consentimento
+// ==========================================
+async function registrarConsentimento(req, res) {
+    try {
+        // Capturando o IP da requisição (req.ip é nativo do Express)
+        // O x-forwarded-for ajuda se a API estiver atrás de um proxy/load balancer
+        const ipRequisicao = req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+        
+        const { idUsuario, idAtestado, versaoTermo } = req.body;
+
+        // Validação básica
+        if (!idUsuario || !idAtestado || !versaoTermo) {
+            return res.status(400).json({ error: 'idUsuario, idAtestado e versaoTermo são obrigatórios' });
+        }
+
+        const timestamp = new Date();
+
+        // Passa para o service realizar o insert no Prisma
+        const consentimentoSalvo = await gravarConsentimento({
+            idUsuario,
+            idAtestado,
+            ipRequisicao,
+            versaoTermo,
+            timestamp
+        });
+
+        return res.status(201).json({ 
+            message: "Consentimento registrado com sucesso", 
+            data: consentimentoSalvo 
+        });
+
+    } catch (error) {
+        console.log('ERRO NO CONSENTIMENTO:', error);
+        return res.status(500).json({ error: 'Erro ao registrar o consentimento' });
+    }
+}
+
+// ==========================================
+// TAREFA DIA 4: Recuperação de Senha Simples
+// ==========================================
+async function recuperarSenha(req, res) {
+    try {
+        const { email, novaSenha } = req.body;
+
+        if (!email || !novaSenha) {
+            return res.status(400).json({ error: 'Email e novaSenha são obrigatórios' });
+        }
+
+        // Passa para o service atualizar a senha (o hash deve ser feito lá no service)
+        await atualizarSenhaSimples(email, novaSenha);
+
+        return res.status(200).json({ message: 'Senha atualizada com sucesso' });
+
+    } catch (error) {
+        console.log('ERRO NA RECUPERAÇÃO DE SENHA:', error);
+        
+        // Exemplo: se o service lançar um erro dizendo que o usuário não existe
+        if (error.message === 'Usuário não encontrado') {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+
+        return res.status(500).json({ error: 'Erro ao atualizar a senha' });
+    }
+}
+
+module.exports = { 
+    register, 
+    login, 
+    registrarConsentimento, 
+    recuperarSenha 
+};
