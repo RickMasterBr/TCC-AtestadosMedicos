@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function Navbar() {
+  const pathname = usePathname();
   const router = useRouter();
 
   function handleLogout() {
@@ -20,13 +21,16 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-8 text-sm text-gray-600 font-medium">
-        <Link href="/funcionario/dashboard" className="text-gray-900 hover:text-[#1a6b6b] transition-colors">
+        <Link href="/funcionario/dashboard"
+          className={`transition ${pathname === '/funcionario/dashboard' ? 'text-[#00a8ac]' : 'hover:text-[#00a8ac]'}`}>
           Início
         </Link>
-        <Link href="/funcionario/novo-atestado" className="hover:text-[#1a6b6b] transition-colors">
+        <Link href="/funcionario/novo-atestado"
+          className={`transition ${pathname === '/funcionario/novo-atestado' ? 'text-[#00a8ac]' : 'hover:text-[#00a8ac]'}`}>
           Enviar Atestado
         </Link>
-        <Link href="/funcionario/meus-atestados" className="hover:text-[#1a6b6b] transition-colors">
+        <Link href="/funcionario/meus-atestados"
+          className={`transition ${pathname === '/funcionario/meus-atestados' ? 'text-[#00a8ac]' : 'hover:text-[#00a8ac]'}`}>
           Meus Atestados
         </Link>
       </div>
