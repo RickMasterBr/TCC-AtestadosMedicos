@@ -1,18 +1,15 @@
 const express = require('express');
-const router = express.Router()
+const router = express.Router();
 const adminController = require('./controller');
+const { authenticate, authorizeAdmin } = require('../auth/auth.middleware');
 
-const {authenticate, authorizeAdmin} = require('../auth/auth.middleware');
-
+// Aplicados uma vez, valem para todas as rotas abaixo
 router.use(authenticate);
 router.use(authorizeAdmin);
 
-router.get('/certificates', authenticate, authorizeAdmin, adminController.listarAtestados);
-
-router.get('/certificates/:id', authenticate, authorizeAdmin, adminController.buscarAtestadoPorId);
-
-router.patch('/certificates/:id/approve', authenticate, authorizeAdmin, adminController.aprovarAtestado);
-
-router.patch('/certificates/:id/reject', authenticate, authorizeAdmin, adminController.rejeitarAtestado);
+router.get('/certificates', adminController.listarAtestados);
+router.get('/certificates/:id', adminController.buscarAtestadoPorId);
+router.patch('/certificates/:id/approve', adminController.aprovarAtestado);
+router.patch('/certificates/:id/reject', adminController.rejeitarAtestado);
 
 module.exports = router;
