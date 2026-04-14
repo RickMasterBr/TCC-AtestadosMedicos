@@ -64,6 +64,17 @@ async function getUserCertificates(req, res) {
             });
         }
 
+        // 🔥 BUSCA NO BANCO (isso estava faltando)
+        const certificates = await prisma.medicalCertificate.findMany({
+            where: {
+                userId: req.user.id
+            },
+            orderBy: {
+                startDate: 'desc'
+            }
+        });
+
+        // Monta URL completa
         const baseUrl = `${req.protocol}://${req.get('host')}`;
 
         const formattedCertificates = certificates.map(cert => ({
@@ -72,7 +83,7 @@ async function getUserCertificates(req, res) {
         }));
 
         return res.json(formattedCertificates);
-        
+
     } catch (error) {
         console.log(error);
 
