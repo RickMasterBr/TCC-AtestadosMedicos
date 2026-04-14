@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import api from '@/services/api';
 import NavBarAdmin from '@/components/NavBarAdmin';
 
+// depois
 export default function DetalhesAtestado({ params }) {
   const router = useRouter();
-  const { id } = params;
+  const { id } = React.use(params);
 
   const [atestado, setAtestado] = useState(null);
   const [isLoading, setIsLoading] = useState(true);

@@ -43,7 +43,7 @@ async function buscarAtestadoPorId(req, res) {
 async function aprovarAtestado(req, res) {
     try {
         const { id } = req.params;
-        const { adminNotes } = req.body;
+        const adminNotes = req.body?.adminNotes || null;
 
         const atestado = await adminService.alterarStatusAtestado(
             id,
@@ -57,7 +57,6 @@ async function aprovarAtestado(req, res) {
         if (error.message === 'Atestado não encontrado') {
             return res.status(404).json({ error: 'Atestado não encontrado' });
         }
-
         console.error('Erro ao aprovar atestado:', error);
         return res.status(500).json({ error: 'Erro interno do servidor' });
     }
@@ -66,7 +65,7 @@ async function aprovarAtestado(req, res) {
 async function rejeitarAtestado(req, res) {
     try {
         const { id } = req.params;
-        const { adminNotes } = req.body;
+        const adminNotes = req.body?.adminNotes || null;
 
         const atestado = await adminService.alterarStatusAtestado(
             id,
@@ -80,7 +79,6 @@ async function rejeitarAtestado(req, res) {
         if (error.message === 'Atestado não encontrado') {
             return res.status(404).json({ error: 'Atestado não encontrado' });
         }
-
         console.error('Erro ao rejeitar atestado:', error);
         return res.status(500).json({ error: 'Erro interno do servidor' });
     }
