@@ -14,6 +14,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="pt-br">
+      <head>
+        <link rel="stylesheet" href="https://vlibras.gov.br/app/vlibras-plugin.css" />
+      </head>
       <body className={`${inter.variable} antialiased`}>
         {children}
       </body>
