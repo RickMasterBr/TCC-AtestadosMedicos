@@ -128,3 +128,31 @@
     @apply font-sans;
   }
 }
+/* ALTO CONTRASTE */
+html.high-contrast body {
+  background: #000 !important;
+  color: #fff !important;
+}
+html.high-contrast nav,
+html.high-contrast header,
+html.high-contrast main,
+html.high-contrast footer,
+html.high-contrast div,
+html.high-contrast section,
+html.high-contrast aside {
+  background: #000 !important;
+  color: #fff !important;
+  border-color: #fff !important;
+}
+html.high-contrast a,
+html.high-contrast button {
+  color: #ffff00 !important;
+  border-color: #ffff00 !important;
+}
+html.high-contrast input,
+html.high-contrast textarea,
+html.high-contrast select {
+  background: #000 !important;
+  color: #fff !important;
+  border: 1px solid #fff !important;
+}

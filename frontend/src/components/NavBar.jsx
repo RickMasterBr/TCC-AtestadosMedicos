@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
+import AccessibilityWidget from '@/components/AccessibilityWidget';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -50,7 +51,7 @@ export default function Navbar() {
           </div>
         </Link>
       </div>
-
+            <AccessibilityWidget />
     </nav>
   );
 }
