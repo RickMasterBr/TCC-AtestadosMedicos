@@ -156,3 +156,21 @@ html.high-contrast select {
   color: #fff !important;
   border: 1px solid #fff !important;
 }
+
+/* ========================
+   VLIBRAS - Proteção de estilos
+======================== */
+/* VLIBRAS - Remove tentativa anterior */
+[vw] .vp-access-button {
+  display: flex !important;
+  position: fixed !important;
+  left: 20px !important;
+  right: auto !important;
+  bottom: 80px !important;
+  top: auto !important;
+  transform: none !important;
+  z-index: 99999 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: all !important;
+}
